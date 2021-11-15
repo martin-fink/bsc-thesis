@@ -1,0 +1,334 @@
+% !TeX root = ../main.tex
+% Add the above to each chapter to make compiling the PDF easier in some editors.
+
+
+\chapter{Evaluation}\label{ch:evaluation}
+
+In this section, we evaluate the runtime overhead of raised programs and how re-optimizations of the raised bitcode impact the overall execution time of the raised programs.
+
+\section{Setup}\label{sec:setup}
+
+To run the benchmarks for ARM and x86\_64, we set up a test machine running on both platforms to run the raised benchmarks.
+The benchmarks were compiled using clang 14.0.0 (commit hash ef976337f581\footnote{\url{https://github.com/llvm/llvm-project/tree/ef976337f581}}), which was set up to be able to cross-compile for ARM and x86\_64.
+
+\begin{align}
+    \mathbb{S}
+    &\xrightarrow{\mathsf{clang}} \mathbb{P}_\mathsf{target} \\
+    \mathbb{S}
+    &\xrightarrow{\mathsf{clang}} \mathbb{P}_\mathsf{X86}
+    &\xrightarrow{\mathsf{mctoll}} \mathbb{P}_\mathsf{IR}
+    &\xrightarrow{\mathsf{LLVM.codegen}} \mathbb{P}_\mathsf{target}' \\
+    \mathbb{S}
+    &\xrightarrow{\mathsf{clang}} \mathbb{P}_\mathsf{X86}
+    &\xrightarrow{\mathsf{mctoll}} \mathbb{P}_\mathsf{IR}
+    &\xrightarrow{\mathsf{LLVM.opt}} &\mathbb{P}_\mathsf{IR}'
+    &\xrightarrow{\mathsf{LLVM.codegen}} \mathbb{P}_\mathsf{target}' \\
+    \mathbb{S}
+    &\xrightarrow{\mathsf{clang}} \mathbb{P}_\mathsf{X86}
+    &\xrightarrow{\mathsf{mctoll}} \mathbb{P}_\mathsf{IR}
+    &\xrightarrow{\mathsf{peephole + LLVM.opt}} &\mathbb{P}_\mathsf{IR}'
+    &\xrightarrow{\mathsf{LLVM.codegen}} \mathbb{P}_\mathsf{target}'
+    \label{eq:test-setup}
+\end{align}
+
+We build four binaries for each test, which we will evaluate in \cref{sec:results}.
+\begin{enumerate}
+    \item A native binary directly compiled to the target architecture from the source code
+    \item A raised binary without optimizations after raising
+    \item A raised binary where LLVM.opt optimizes the generated bitcode
+    \item A raised binary where the peephole pass runs and then LLVM.opt optimizes the generated bitcode
+\end{enumerate}
+
+\paragraph{ARM} For ARM, we used a Raspberry Pi 4 Model B with 4~GB of RAM running 64 bit Debian 11.1.
+This model features an ARM Cortex-A72 CPU with four cores that implements the ARMv8 64 bit instruction set.
+To minimize thermal throttling, which might skew our results, we installed an active cooling system consisting of an aluminum heatsink and a small fan.
+This kept the temperature of the Pi below 35\textdegree{}C for single-threaded benchmarks and below 45\textdegree{}C for multi-threaded benchmarks, which used all CPU cores.
+
+\paragraph{x86\_64} To run the x86\_64 benchmarks, we used a Linux machine with an AMD Ryzen 7 3700X CPU with 8 physical cores and 16 threads and 64~GB of DDR4 RAM running Debian 11.1.
+
+\subsection{Benchmarks}\label{subsec:benchmarks}
+To evaluate our program, we used the sequential and pthread versions of the phoenix-2.0 benchmark\footnote{\url{https://github.com/kozyraki/phoenix}}.
+To get a baseline, we cross-compiled each program to aarch64 and x86\_64 using clang with optimizaiton level \texttt{-O3}.
+The x86\_64 program was then raised to LLVM bitcode and re-compiled for both target architectures.
+To check how much overhead was introduced by MCTOLL, we re-compiled the raised bitcode with optimizations turned off (\texttt{-O0}), with optimizations turned on (\texttt{-O3}) and with optimizations turned on as well as the peephole compiler pass.
+
+\section{Results}\label{sec:results}
+
+In \crefrange{fig:phoenix_arm_seq}{fig:phoenix_arm_pthread} we compare the runtime performance of the phoenix-2.0 benchmark on ARM, in \crefrange{fig:phoenix_x86_seq}{fig:phoenix_x86_pthread} phoenix-2.0 on x86.
+
+\subsection{Native Binary}\label{subsec:native-binary}
+We ran the native binary to get a baseline for the execution time, which will be used to normalize runtimes (the native runtime will be 1).
+
+\subsection{Raw Overhead Introduced by Translation}\label{subsec:raw-overhead-introduced-by-translation}
+
+To measure the impact of the raw overhead introduced by translating every instruction, we re-compile the raised bitcode with optimizations turned off (\texttt{-O0}).
+This does not remove unused instructions generated to calculate implicitly-set processor flags that will not be used in the code.
+As discussed in \cref{subsec:promoting-registers-to-stack-slots}, reaching register values may be stored in stack slots.
+Accessing these produces a significant overhead that LLVM.opt can optimize.
+
+\subsection{Optimized Binary}\label{subsec:optimized-binary}
+
+The most important optimizations LLVM.opt performs on the generated bitcode are
+\begin{itemize}
+    \item removing unnecessary instructions (e.g.,\ calculating processor flags),
+    \item promoting values from the stack to registers with the help of \texttt{phi} nodes, and
+    \item further optimizing generated code.
+\end{itemize}
+
+These optimizations manage to almost entirely wipe out the introduced overhead in all tested benchmarks with the sequential histogram test being the exception.
+For some benchmarks, the optimized binaries manage to outperform their native counterpart consistently.
+
+\subsection{Optimized Binary with Peephole Pass}\label{subsec:optimized-binary-with-peephole-pass}
+
+The peephole pass does not introduce runtime performance in most test cases, and the execution time stays the same as in the run without the peephole pass.
+However, the peephole pass manages to significantly speed up the runtime of the sequential kmeans benchmark to the point where it consistently outperforms the native version and runs in about 70\% of the native version's time.
+
+\subsection{Cross-Architecture Translation}\label{subsec:cross-architecture-translation}
+
+In this subsection, we compare the benchmarks compiled natively for ARM against the version compiled for x86 and translated to ARM\@.
+\Crefrange{fig:phoenix_arm_seq}{fig:phoenix_arm_pthread} show the runtime overhead for the sequential and pthread versions of the phoenix-2.0 benchmark.
+
+We can see that the unoptimized translated version has an overhead that varies between 11\% (pca-seq) and 380\% (kmeans-seq).
+Benchmarks where dead code and many stack-demotions of registers are generated by MCTOLL show a high overhead here.
+By running LLVM.opt with its highest optimization level gets rid of almost all of this overhead introduced by MCTOLL and we are able to achieve a runtime very close to the native version.
+Some benchmarks run even faster than the native version.
+If we run MCTOLLs peephole pass and LLVM.opt, we are able to improve the performance of kmeans-seq and string\_match-pthread to be faster than their native counterpart.
+We believe we can achieve these performance gains over the native binaries as we are effectively running LLVM.opt twice over the generated binary.
+
+By default, LLVM.opt runs a set of predefined optimization passes.
+By running these passes twice, LLVM may be able to optimize a binary further.
+
+\begin{figure}[htpb]
+    \begin{tikzpicture}
+        \begin{axis}
+            [
+            ybar=1pt,
+            width=\textwidth,
+            enlargelimits=0.15,
+            legend style={at={(0.5,-0.2)},
+            anchor=north,legend columns=-1},
+            ylabel={Normalized Runtime},
+            symbolic x coords={histogram,kmeans,linear\_regression,matrix\_multiply,pca,string\_match,word\_count},
+            xtick=data,
+            grid=major,
+            x tick label style={rotate=35,anchor=east},
+            ]
+            \addplot+ [error bars/.cd,y explicit,y dir=both] table [
+            x=benchmark,
+            y=mean,
+            y error plus expr=\thisrow{CIL} - \thisrow{mean},
+            y error minus expr=\thisrow{mean} - \thisrow{CIH},
+            ] {../data/arm/phoenix_native_seq.dat};
+            \addplot+ [error bars/.cd,y explicit,y dir=both] table [
+            x=benchmark,
+            y=mean,
+            y error plus expr=\thisrow{CIL} - \thisrow{mean},
+            y error minus expr=\thisrow{mean} - \thisrow{CIH},
+            ] {../data/arm/phoenix_unopt_seq.dat};
+            \addplot+ [error bars/.cd,y explicit,y dir=both] table [
+            x=benchmark,
+            y=mean,
+            y error plus expr=\thisrow{CIL} - \thisrow{mean},
+            y error minus expr=\thisrow{mean} - \thisrow{CIH},
+            ] {../data/arm/phoenix_opt_no_peephole_seq.dat};
+            \addplot+ [error bars/.cd,y explicit,y dir=both] table [
+            x=benchmark,
+            y=mean,
+            y error plus expr=\thisrow{CIL} - \thisrow{mean},
+            y error minus expr=\thisrow{mean} - \thisrow{CIH},
+            ] {../data/arm/phoenix_opt_seq.dat};
+            \legend{Native,Raised,Raised (opt), Raised (opt + peephole)};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Runtime overhead of sequential phoenix-2.0 benchmarks on ARM}
+    \label{fig:phoenix_arm_seq}
+\end{figure}
+
+\begin{figure}[htpb]
+    \begin{tikzpicture}
+        \begin{axis}
+            [
+            ybar=1pt,
+            width=\textwidth,
+            enlargelimits=0.15,
+            legend style={at={(0.5,-0.2)},
+            anchor=north,legend columns=-1},
+            ylabel={Normalized Runtime},
+            symbolic x coords={histogram,kmeans,linear\_regression,matrix\_multiply,string\_match},
+            xtick=data,
+            grid=major,
+            x tick label style={rotate=35,anchor=east},
+            ]
+            \addplot+ [error bars/.cd,y explicit,y dir=both] table [
+            x=benchmark,
+            y=mean,
+            y error plus expr=\thisrow{CIL} - \thisrow{mean},
+            y error minus expr=\thisrow{mean} - \thisrow{CIH},
+            ] {../data/arm/phoenix_native_pthread.dat};
+            \addplot+ [error bars/.cd,y explicit,y dir=both] table [
+            x=benchmark,
+            y=mean,
+            y error plus expr=\thisrow{CIL} - \thisrow{mean},
+            y error minus expr=\thisrow{mean} - \thisrow{CIH},
+            ] {../data/arm/phoenix_unopt_pthread.dat};
+            \addplot+ [error bars/.cd,y explicit,y dir=both] table [
+            x=benchmark,
+            y=mean,
+            y error plus expr=\thisrow{CIL} - \thisrow{mean},
+            y error minus expr=\thisrow{mean} - \thisrow{CIH},
+            ] {../data/arm/phoenix_opt_no_peephole_pthread.dat};
+            \addplot+ [error bars/.cd,y explicit,y dir=both] table [
+            x=benchmark,
+            y=mean,
+            y error plus expr=\thisrow{CIL} - \thisrow{mean},
+            y error minus expr=\thisrow{mean} - \thisrow{CIH},
+            ] {../data/arm/phoenix_opt_pthread.dat};
+            \legend{Native,Raised,Raised (opt), Raised (opt + peephole)};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Runtime overhead of pthread phoenix-2.0 benchmarks on ARM}
+    \label{fig:phoenix_arm_pthread}
+\end{figure}
+
+
+\subsection{Same-Architecture Translation}\label{subsec:same-architecture-translation}
+
+In this subsection we compare a native x86 binary against the same binary raised and re-compiled for x86 again.
+\Crefrange{fig:phoenix_x86_seq}{fig:phoenix_x86_pthread} show the overhead of raised binaries comapred to the native counterpart.
+For most benchmarks, we see the same result as we saw for the ARM versions in \cref{subsec:cross-architecture-translation}, but with a greater confidence interval for the pthread programs.
+This is probably caused by the background load being higher on the x86 machine than it was on the ARM machine.
+
+We can conclude that recompiling to gain code size is not worth beneficial for the user.
+
+\begin{figure}[htpb]
+    \begin{tikzpicture}
+        \begin{axis}
+            [
+            ybar=1pt,
+            width=\textwidth,
+            enlargelimits=0.15,
+            legend style={at={(0.5,-0.2)},
+            anchor=north,legend columns=-1},
+            ylabel={Normalized Runtime},
+            symbolic x coords={histogram,kmeans,linear\_regression,matrix\_multiply,pca,string\_match,word\_count},
+            xtick=data,
+            grid=major,
+            x tick label style={rotate=35,anchor=east},
+            ]
+            \addplot+ [error bars/.cd,y explicit,y dir=both] table [
+            x=benchmark,
+            y=mean,
+            y error plus expr=\thisrow{CIL} - \thisrow{mean},
+            y error minus expr=\thisrow{mean} - \thisrow{CIH},
+            ] {../data/x86/phoenix_native_seq.dat};
+            \addplot+ [error bars/.cd,y explicit,y dir=both] table [
+            x=benchmark,
+            y=mean,
+            y error plus expr=\thisrow{CIL} - \thisrow{mean},
+            y error minus expr=\thisrow{mean} - \thisrow{CIH},
+            ] {../data/x86/phoenix_unopt_seq.dat};
+            \addplot+ [error bars/.cd,y explicit,y dir=both] table [
+            x=benchmark,
+            y=mean,
+            y error plus expr=\thisrow{CIL} - \thisrow{mean},
+            y error minus expr=\thisrow{mean} - \thisrow{CIH},
+            ] {../data/x86/phoenix_opt_no_peephole_seq.dat};
+            \addplot+ [error bars/.cd,y explicit,y dir=both] table [
+            x=benchmark,
+            y=mean,
+            y error plus expr=\thisrow{CIL} - \thisrow{mean},
+            y error minus expr=\thisrow{mean} - \thisrow{CIH},
+            ] {../data/x86/phoenix_opt_peephole_seq.dat};
+            \legend{Native,Raised,Raised (opt), Raised (opt + peephole)};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Runtime overhead of sequential phoenix-2.0 benchmarks on x86}
+    \label{fig:phoenix_x86_seq}
+\end{figure}
+
+\begin{figure}[htpb]
+    \begin{tikzpicture}
+        \begin{axis}
+            [
+            ybar=1pt,
+            width=\textwidth,
+            enlargelimits=0.15,
+            legend style={at={(0.5,-0.2)},
+            anchor=north,legend columns=-1},
+            ylabel={Normalized Runtime},
+            symbolic x coords={histogram,kmeans,linear\_regression,matrix\_multiply,string\_match},
+            xtick=data,
+            grid=major,
+            x tick label style={rotate=35,anchor=east},
+            ]
+            \addplot+ [error bars/.cd,y explicit,y dir=both] table [
+            x=benchmark,
+            y=mean,
+            y error plus expr=\thisrow{CIL} - \thisrow{mean},
+            y error minus expr=\thisrow{mean} - \thisrow{CIH},
+            ] {../data/x86/phoenix_native_pthread.dat};
+            \addplot+ [error bars/.cd,y explicit,y dir=both] table [
+            x=benchmark,
+            y=mean,
+            y error plus expr=\thisrow{CIL} - \thisrow{mean},
+            y error minus expr=\thisrow{mean} - \thisrow{CIH},
+            ] {../data/x86/phoenix_unopt_pthread.dat};
+            \addplot+ [error bars/.cd,y explicit,y dir=both] table [
+            x=benchmark,
+            y=mean,
+            y error plus expr=\thisrow{CIL} - \thisrow{mean},
+            y error minus expr=\thisrow{mean} - \thisrow{CIH},
+            ] {../data/x86/phoenix_opt_no_peephole_pthread.dat};
+            \addplot+ [error bars/.cd,y explicit,y dir=both] table [
+            x=benchmark,
+            y=mean,
+            y error plus expr=\thisrow{CIL} - \thisrow{mean},
+            y error minus expr=\thisrow{mean} - \thisrow{CIH},
+            ] {../data/x86/phoenix_opt_peephole_pthread.dat};
+            \legend{Native,Raised,Raised (opt), Raised (opt + peephole)};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Runtime overhead of pthread phoenix-2.0 benchmarks on x86}
+    \label{fig:phoenix_x86_pthread}
+\end{figure}
+
+\subsection{Binary Size}\label{subsec:code-size}
+
+In \cref{fig:phoenix_x86_size}, we compare binary sizes of the native ARM binaries against the translated binaries optimized for performance (\texttt{-O3}) and for code size (\texttt{-Oz}).
+In the plot we only display the sequential version of the benchmarks, as the results for the pthread ones are similar.
+We can see that for some benchmarks there is a marginal improvement in code size, for others such as histogram, linear\_regression, and matrix\_multiply there is no improvement.
+
+\begin{figure}[htpb]
+    \begin{tikzpicture}
+        \begin{axis}
+            [
+            ybar=1pt,
+            width=\textwidth,
+            enlargelimits=0.15,
+            legend style={at={(0.5,-0.2)},
+            anchor=north,legend columns=-1},
+            ylabel={Binary size in MiB},
+            symbolic x coords={histogram,kmeans,linear\_regression,matrix\_multiply,pca,string\_match,word\_count},
+            xtick=data,
+            grid=major,
+            x tick label style={rotate=35,anchor=east},
+            ]
+            \addplot+ table [
+            x=benchmark,
+            y=size,
+            ] {../data/size/size_native_arm.dat};
+            \addplot+ table [
+            x=benchmark,
+            y=size,
+            ] {../data/size/size_raised_arm.dat};
+            \addplot+ table [
+            x=benchmark,
+            y=size,
+            ] {../data/size/size_raised_size_arm.dat};
+            \legend{Native,Raised (\texttt{-O3}),Raised (\texttt{-Oz})};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Binary sizes of native and raised benchmarks on x86}
+    \label{fig:phoenix_x86_size}
+\end{figure}
+

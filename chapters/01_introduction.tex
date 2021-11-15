@@ -1,0 +1,46 @@
+% !TeX root = ../main.tex
+% Add the above to each chapter to make compiling the PDF easier in some editors.
+
+
+\chapter{Introduction}\label{ch:introduction}
+
+During this thesis we have worked on expanding the capabilities of the MCTOLL (see \cref{sec:mctoll}) static binary translator, mainly on the x86 (see \cref{sec:x86-64}) frontend.
+In \cref{ch:background} we will describe MCTOLL, in \cref{ch:related-work} similiar projects, their capabilities and limitations.
+\Cref{ch:contributions} describes our contributions to the project, in \cref{ch:evaluation} we will discuss the impact and performance of our implementation.
+
+\section{Motivation}\label{sec:motivation}
+
+Today's CPU architecture is not a homogeneous field.
+While x86 still remains the most common \gls{ISA} in use in desktop computers, laptops, and servers, new architectures such as ARM and RISC-V are continuously being developed and are gaining market share.
+ARM historically was mainly used in the mobile computing world, seeing widespread adoption in smartphones and low-powered devices such as Raspberry Pis.
+In recent years, manufacturers in the desktop and laptop computing world have been shifting their focus, as ARM-based CPUs potentially offer more performance using less power than comparable x86 chips from Intel or AMD\@.
+
+The transistion from one architecture to another results in compatibility issues with existing binaries where re-compilation is not possible.
+If the source code for an application is available, the preferred solution is to compile it to the target architecture directly, as this will produce the most efficient result, both in runtime and binary size.
+If the source code is not available, or it has been developed with specific assumptions about the processor architecture in mind, binary translation offers a possibility to port legacy binaries to a new architecture.
+
+Another potential use case we discovered during this project is re-optimization.
+This poses the possibility to improve performance for legacy binaries by leveraging new processor extensions and improved compiler passes or optimize binaries for different goals.
+Legacy binaries might not make use of vector extensions on modern CPUs if the program has been written and compiled before such extensions were widely available.
+
+\section{Binary Translation Approaches}\label{sec:binary-translation-approaches}
+
+There are two possible approaches to binary translation, both of which we'll discuss below.
+
+\subsection{Dynamic Binary Translation}\label{subsec:dynamic-binary-translation}
+
+Dynamic binary translation is the approach which is widely used today when programs compiled for a different \gls{ISA} need to be run and which is used by projects such as QEMU~\parencite{bellard2005qemu} and Apple's Rosetta 2.
+They usually work by translating code on demand, often on a per-basic block basis.
+This method has the possibility to run a wide range of programs.
+Issues like indirect jumps, that pose problems for static binary translation, are solved at runtime.
+The downside which dynamic binary translation suffers from is performance.
+Translation needs to be done at runtime and there is not much possibility to optimize the translated code, as only the current basic block is available.
+
+\subsection{Static Binary Translation}\label{subsec:static-binary-translation}
+
+Static binary translation performs the translation ahead of time, raising and recompiling programs before they are executed on the target machine.
+This has the advantage of not needing to translate a program everytime it is run, increasing performance similar to how compiled languages typically have a lower runtime overhead compared to interpreted languages.
+Another benefit is that static binary translators raise whole functions and reconstruct the program's control flow graph, offering the possibility to apply existing compiler optimizations.
+These optimizations typically get rid of unused expressions generated while raising a CPU instruction (e.g.\ calculation of CPU flags that will not be used), and apply optimizations that are only possible when the control flow graph is available.
+
+However, static binary translation is not able to raise indirect branches as the jump targets are not known before running the program.

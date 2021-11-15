@@ -1,0 +1,27 @@
+\chapter{\abstractname}\label{ch:abstract}
+
+With new CPU architectures such as ARM or RISC-V gaining popularity, achieving application support is a problem hindering their adaption.
+Existing applications need to be adapted, compiled, and distributed for the new architecture, which is not always possible.
+Static binary translation is a concept that can help port binaries to new architectures without introducing significant runtime overhead.
+These translators act similar to a compiler in the sense that they process and translate binaries ahead of time.
+In this thesis, we try to improve and extend the capabilities of the existing binary lifter MCTOLL\@.
+It gradually recovers abstraction levels from binaries and produces LLVM bitcode, which can then be compiled to all architectures supported by LLVM\@.
+
+To test our implementation, we compare native programs to their translated counterparts by measuring runtime performance and code size of the phoenix-2.0 benchmark.
+
+The results show that static binary translators are able to generate very efficient code with the help of optimizers such as LLVM\@.
+However, they do have some limitations and cannot process binaries with certain properties, which limits their use cases.
+
+\chapter{Zusammenfassung}\label{ch:zusammenfassung}
+
+Mit dem zunehmenden Aufschwung von neuen Prozessorarchitekturen wie ARM oder RISC-V stellt die mangelnde Kompatibilität bestehender Anwendungen mit diesen Architekturen ein Problem dar.
+Programme müssen an die neue Architektur angepasst, neu kompiliert und an die Benutzer verteilt werden, was nicht immer möglich ist.
+Statische Übersetzung von Binärdateien ist ein Ansatz, Programme auf neue Architekturen zu portieren, ohne erheblich an Laufzeit einzubüßen.
+Diese Übersetzer verhalten sich ähnlich wie klassische Compiler indem sie Programme verarbeiten, bevor sie ausgeführt werden.
+In dieser Arbeit versuchen wir die Fähigkeiten des bestehenden Übsersetzers MCTOLL zu verbessern und erweitern.
+MCTOLL versucht schrittweise Abstraktionsebenen des ursprünglichen Programmcodes zurückzugewinnen und erzeugt LLVM Bitcode, welcher von LLVM dann für alle unterstützten Zielplattformen kompiliert werden kann.
+
+Um die Ergebnisse unserer Arbeit zu testen, vergleichen wir native Programme mit den übersetzten und portierten Gegenstücken.
+Wir messen die Laufzeit und Programmgröße des phoenix-2.0 Benchmarks.
+Die Ergebnisse zeigen, dass statische Binärübersetzer mit der Hilfe von Codeoptimierern wie LLVM in der Lage sind, sehr effizienten Code zu erzeugen.
+Es gibt jedoch Einschränkungen in der Anwendbarkeit, da diese Typen von Binärübersetzern nicht jede Art von Programm verarbeiten können.

@@ -1,0 +1,16 @@
+image: texlive/texlive
+
+stages:
+- build
+
+pdf:
+  stage: build
+  script:
+  - make pdf
+  - make pdf jobname=dark
+  artifacts:
+    paths:
+    - build/main.pdf
+    - build/dark.pdf
+    expire_in: 1 week
+

@@ -1,0 +1,21 @@
+% !TeX root = ../main.tex
+% Add the above to each chapter to make compiling the PDF easier in some editors.
+
+\chapter{Conclusion}\label{ch:conclusion}
+
+With our work on MCTOLL, we managed to improve its capabilities allowing users to raise more real-world programs than before.
+The support for floating-point arguments, return types, and instructions allow a wide range of programs to be raised, which was impossible before.
+
+Additionally, we managed to fix issues that prevented programs which used externally defined variables (e.g.,\ \texttt{stdout}) to be raised.
+
+\section{Future Work}\label{sec:future-work}
+
+At the time of writing, the most common instructions are supported, but there are still thousands of less frequently used instructions that are not implemented in the raiser, both from the x86 set and from later extensions such as AVX or AVX2.
+Implementing those would be working towards raising real-world programs and running them efficiently on different architectures.
+
+As raising programs with indirect jumps is not possible with this static approach, a hybrid approach where static translation does most of the heavy lifting and dynamic binary translation is used for the part where static translation cannot translate the binary.
+This work could allow running programs on other platforms without significant overhead.
+
+To correctly raise multi-threaded programs from ISAs using a strong memory model to a weak one (e.g.,\ x86 to ARM), the raiser would need to insert memory fences, which is not done at the moment.
+This leads to potentially incorrect program execution on the weak memory model architecture.
+In this thesis, we do not evaluate programs which access shared memory in a way that violates these assumptions, but this is not true for all multi-threaded programs.

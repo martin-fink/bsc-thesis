@@ -1,0 +1,313 @@
+@online{apple_x86-64_nodate,
+  title = {x86-64 {Code} {Model}},
+  url = {https://developer.apple.com/library/archive/documentation/DeveloperTools/Conceptual/MachOTopics/1-Articles/x86_64_code.html},
+  urldate = {2021-09-09},
+  author = {Apple},
+  file = {x86-64 Code Model:/Users/martin/Zotero/storage/DLWBKVRQ/x86_64_code.html:text/html},
+}
+
+@inproceedings{yadavalli_raising_2019,
+  address = {Phoenix, AZ, USA},
+  title = {Raising binaries to {LLVM} {IR} with {MCTOLL} ({WIP} paper)},
+  isbn = {978-1-4503-6724-0},
+  url = {http://dl.acm.org/citation.cfm?doid=3316482.3326354},
+  doi = {10.1145/3316482.3326354},
+  language = {en},
+  urldate = {2021-09-09},
+  booktitle = {Proceedings of the 20th {ACM} {SIGPLAN}/{SIGBED} {International} {Conference} on {Languages}, {Compilers}, and {Tools} for {Embedded} {Systems}  - {LCTES} 2019},
+  publisher = {ACM Press},
+  author = {Yadavalli, S. Bharadwaj and Smith, Aaron},
+  year = {2019},
+  pages = {213--218},
+}
+
+% TODO: urls not showing in paper
+@online{system-v_2021,
+  title = {System {V} {Application} {Binary} {Interface}},
+  url = {https://gitlab.com/x86-psABIs/x86-64-ABI/-/jobs/1438137053/artifacts/file/x86-64-ABI/abi.pdf},
+  urldate = {2021-09-09},
+  author = {Lu, H.J. and Matz, Michael and Girkar, Milind and Hubička, Jan and Jaeger, Andreas and Mitchell, Mark},
+}
+
+@online{llvm,
+  author = {LLVM},
+  title = {LLVM Project},
+  url = {https://llvm.org},
+  urldate = {2021-09-09}
+}
+
+@online{clang,
+  author = {LLVM},
+  title = {Clang Homepage},
+  url = {https://clang.llvm.org},
+  urldate = {2021-11-06}
+}
+
+@inproceedings{LLVM_CGO04,
+  author    = {Chris Lattner and Vikram Adve},
+  title     = {LLVM: A Compilation Framework for Lifelong Program Analysis \& Transformation},
+  booktitle = {Proceedings of the 2004 International Symposium on Code Generation and Optimization (CGO'04)},
+  address   = {Palo Alto, California},
+  month     = {3},
+  year      = {2004}
+}
+
+@article{ssa,
+  author = {Rosen, B. and Wegman, M. and Zadeck, Kenneth},
+  year = {1988},
+  month = {01},
+  pages = {12-27},
+  title = {Global value numbers and redundant computations},
+  isbn = {0-89791-252-7},
+  journal = {15th Annual ACM Symposium on Principles of Programming Languages},
+  doi = {10.1145/73560.73562}
+}
+
+@inproceedings{bellard2005qemu,
+  title = {QEMU, a fast and portable dynamic translator.},
+  author = {Bellard, Fabrice},
+  booktitle = {USENIX annual technical conference, FREENIX Track},
+  volume = {41},
+  pages = {46},
+  year = {2005},
+  organization = {Califor-nia, USA}
+}
+
+@inproceedings{phoenix,
+  author = {Ranger, Colby and Raghuraman, Ramanan and Penmetsa, Arun and Bradski, Gary and Kozyrakis, Christos},
+  booktitle = {2007 IEEE 13th International Symposium on High Performance Computer Architecture},
+  title = {Evaluating MapReduce for Multi-core and Multiprocessor Systems},
+  year = {2007},
+  volume = {},
+  number = {},
+  pages = {13-24},
+  doi = {10.1109/HPCA.2007.346181}
+}
+
+@inproceedings{llbt,
+  author = {Shen, Bor-Yeh and Chen, Jiunn-Yeu and Hsu, Wei-Chung and Yang, Wuu},
+  title = {LLBT: An LLVM-Based Static Binary Translator},
+  year = {2012},
+  isbn = {9781450314244},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/2380403.2380419},
+  doi = {10.1145/2380403.2380419},
+  abstract = {Lack of applications has always been a serious concern for designing machines with a new but incompatible ISA. To address this concern, binary translation is one common technique to migrate applications from one legacy ISA to new ones. In the past, dynamic binary translation (DBT) has been more widely adopted for migrating applications since it avoids some challenging problems for binary translation such as code discovery for variable length ISA and code location issues for handling indirect branches. Static binary translation (SBT) is usually regarded as a less general solution and has not been actively researched on. However, SBT has advantages of performing more aggressive optimizations, which could yield more compact code and greater code quality. In general, SBT translated applications are likely to consume less memory, processor cycles and power, and can be started more quickly. All the above advantages are more critical for embedded systems than for general systems. Therefore, we believe that even though SBT is not as general as DBT, it has a unique role to play for migrating applications in embedded systems.In this paper, we designed and implemented a new portable SBT tool, called LLBT, which translates source binary into LLVM IR and then retargets the LLVM IR to various ISAs by using the LLVM compiler infrastructure. Using the LLVM compiler infrastructure, LLBT successfully leverages two important functionalities from LLVM: the comprehensive optimizations and the retargetability. For example, most DBTs map guest architecture states into the host registers to minimize accessing guest architecture states with memory operations, but must deal with guest architecture state saving/reloading at trace/block entry/exit points. LLBT can treat the complete application binary as a single function and uses the global register allocation optimization in LLVM to consistently map guest architecture states in host registers so as to avoid the costly state saving and reloading at trace/block exits.In this paper, we have shown our ARM-based LLBT can effectively migrate EEMBC benchmark Suite from ARMv5 to Intel IA32, Intel x64, MIPS, and other ARMs such as ARMv7. On the Intel i7 based host systems, the LLBT generated code can run 3 to 64 times faster than emulating with QEMU, which uses the DBT technique.},
+  booktitle = {Proceedings of the 2012 International Conference on Compilers, Architectures and Synthesis for Embedded Systems},
+  pages = {51–60},
+  numpages = {10},
+  keywords = {retargeting, static binary translation, intermediate representation, compiler},
+  location = {Tampere, Finland},
+  series = {CASES '12}
+}
+
+@online{optimiziation_x86,
+  title = {Optimizing subroutines in assembly language},
+  url = {https://www.agner.org/optimize/optimizing_assembly.pdf},
+  urldate = {2021-11-05},
+  author = {Fog, Agner},
+  year = {2021},
+}
+
+@inproceedings{cfg,
+  author = {Allen, Frances E.},
+  title = {Control Flow Analysis},
+  year = {1970},
+  isbn = {9781450373869},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/800028.808479},
+  doi = {10.1145/800028.808479},
+  abstract = {Any static, global analysis of the expression and data relationships in a program
+requires a knowledge of the control flow of the program. Since one of the primary
+reasons for doing such a global analysis in a compiler is to produce optimized programs,
+control flow analysis has been embedded in many compilers and has been described in
+several papers. An early paper by Prosser [5] described the use of Boolean matrices
+(or, more particularly, connectivity matrices) in flow analysis. The use of “dominance”
+relationships in flow analysis was first introduced by Prosser and much expanded by
+Lowry and Medlock [6]. References [6,8,9] describe compilers which use various forms
+of control flow analysis for optimization. Some recent developments in the area are
+reported in [4] and in [7].The underlying motivation in all the different types of
+control flow analysis is the need to codify the flow relationships in the program.
+The codification may be in connectivity matrices, in predecessor-successor tables,
+in dominance lists, etc. Whatever the form, the purpose is to facilitate determining
+what the flow relationships are; in other words to facilitate answering such questions
+as: is this an inner loop?, if an expression is removed from the loop where can it
+be correctly and profitably placed?, which variable definitions can affect this use?In
+this paper the basic control flow relationships are expressed in a directed graph.
+Various graph constructs are then found and shown to codify interesting global relationships.},
+  booktitle = {Proceedings of a Symposium on Compiler Optimization},
+  pages = {1–19},
+  numpages = {19},
+  location = {Urbana-Champaign, Illinois}
+}
+
+@inproceedings{10.1145/1460299.1460314,
+  author = {Prosser, Reese T.},
+  title = {Applications of Boolean Matrices to the Analysis of Flow Diagrams},
+  year = {1959},
+  isbn = {9781450378680},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/1460299.1460314},
+  doi = {10.1145/1460299.1460314},
+  abstract = {Any serious attempt at automatic programming of large-scale digital computing machines must provide for some sort of analysis of program structure. Questions concerning order of operations, location and disposition of transfers, identification of subroutines, internal consistency, redundancy and equivalence, all involve a knowledge of the structure of the program under study, and must be handled effectively by any automatic programming system.},
+  booktitle = {Papers Presented at the December 1-3, 1959, Eastern Joint IRE-AIEE-ACM Computer Conference},
+  pages = {133–138},
+  numpages = {6},
+  location = {Boston, Massachusetts},
+  series = {IRE-AIEE-ACM '59 (Eastern)}
+}
+
+@article{10.1145/362835.362838,
+  author = {Lowry, Edward S. and Medlock, C. W.},
+  title = {Object Code Optimization},
+  year = {1969},
+  issue_date = {Jan. 1969},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  volume = {12},
+  number = {1},
+  issn = {0001-0782},
+  url = {https://doi.org/10.1145/362835.362838},
+  doi = {10.1145/362835.362838},
+  abstract = {Methods of analyzing the control flow and data flow of programs during compilation
+are applied to transforming the program to improve object time efficiency. Dominance
+relationships, indicating which statements are necessarily executed before others,
+are used to do global common expression elimination and loop identification. Implementation
+of these and other optimizations in OS/360 FORTRAN H are described.},
+  journal = {Commun. ACM},
+  month = jan,
+  pages = {13–22},
+  numpages = {10},
+  keywords = {object code, optimization, machine instructions, efficiency, System/360, loop structure, dominance, data flow analysis, compilers, register assignment, FORTRAN, graph theory, redundancy elimination}
+}
+
+@techreport{10.5555/1698151,
+  author = {Cifuentes, Cristina and Van Emmerik, Mike and Ramsey, Norman and Lewis, Brian},
+  title = {Experience in the Design, Implementation and Use of a Retargetable Static Binary Translation Framework},
+  year = {2002},
+  publisher = {Sun Microsystems, Inc.},
+  address = {USA},
+  abstract = {Binary translation, the process of translating binary executables, makes it possible
+to run code compiled for source (input) machine Ms on target (output) machine Mt.
+Unlike an interpreter or emulator, a binary translator makes it possible to approach
+the speed of native code on machine Mt. Translated code may still run slower than
+native code because low-level properties of machine Ms must often be modeled on machine
+Mt.The University of Queensland Binary Translation (UQBT) framework is a retargetable
+framework for experimenting with static binary translation on CISC and RISC machines.
+The system was built jointly by The University of Queensland and Sun Microsystems
+Laboratories in order to experiment with translations to and from different machines,
+to understand how to migrate applications from other UNIX®-based platforms to a (SPARC®,
+Solaris™) platform, and to experiment with translations from the current SPARC architecture
+to a future, not yet existing, version of the SPARC architecture.This paper describes
+the overall design and architecture of the UQBT framework, the goals for the project,
+the resulting framework, experiences with translations across different machines,
+and lessons learned.}
+}
+
+@article{arm-sbt,
+  author = {Chen, Jiunn-Yeu and Yang, Wuu and Hung, Jack and Su, Charlie and Hsu, Wei Chung},
+  year = {2008},
+  month = {01},
+  pages = {},
+  title = {A Static Binary Translator for Efficient Migration of ARM based Applications}
+}
+
+@inproceedings{10.5555/1855741.1855754,
+  author = {Bansal, Sorav and Aiken, Alex},
+  title = {Binary Translation Using Peephole Superoptimizers},
+  year = {2008},
+  publisher = {USENIX Association},
+  address = {USA},
+  abstract = {We present a new scheme for performing binary translation that produces code comparable
+to or better than existing binary translators with much less engineering effort. Instead
+of hand-coding the translation from one instruction set to another, our approach automatically
+learns translation rules using superoptimization techniques. We have implemented a
+PowerPC-x86 binary translator and report results on small and large computeintensive
+benchmarks. When compared to the native compiler, our translated code achieves median
+performance of 67% on large benchmarks and in some small stress tests actually outperforms
+the native compiler. We also report comparisons with the open source binary translator
+Qemu and a commercial tool, Apple's Rosetta. We consistently outperformthe former
+and are comparable to or faster than the latter on all but one benchmark.},
+  booktitle = {Proceedings of the 8th USENIX Conference on Operating Systems Design and Implementation},
+  pages = {177–192},
+  numpages = {16},
+  location = {San Diego, California},
+  series = {OSDI'08}
+}
+
+@article{aries,
+  author = {Zheng, C. and Thompson, C.},
+  journal = {Computer},
+  title = {PA-RISC to IA-64: transparent execution, no recompilation},
+  year = {2000},
+  volume = {33},
+  number = {3},
+  pages = {47-52},
+  doi = {10.1109/2.825695}
+}
+
+@inproceedings{ia32el,
+  author={Baraz, L. and Devor, T. and Etzion, O. and Goldenberg, S. and Skaletsky, A. and Yun Wang and Zemach, Y.},
+  booktitle={Proceedings. 36th Annual IEEE/ACM International Symposium on Microarchitecture, 2003. MICRO-36.},
+  title={IA-32 execution layer: a two-phase dynamic translator designed to support IA-32 applications on Itanium/spl reg/-based systems},
+  year={2003},
+  volume={},
+  number={},
+  pages={191-201},
+  doi={10.1109/MICRO.2003.1253195}
+}
+
+@inproceedings{10.1145/3339186.3339192,
+  author = {You, Yi-Ping and Lin, Tsung-Chun and Yang, Wuu},
+  title = {Translating AArch64 Floating-Point Instruction Set to the X86-64 Platform},
+  year = {2019},
+  isbn = {9781450371964},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/3339186.3339192},
+  doi = {10.1145/3339186.3339192},
+  abstract = {Binary translation translates binary programs from one instruction set to another.
+It is widely used in virtual machines and emulators. We extend mc2llvm, which is an
+LLVM-based retargetable 32-bit binary translator developed in our lab in the past
+several years, to support 64-bit ARM instruction set. In this paper, we report the
+translation of AArch64 floating-point instructions in our mc2llvm. For floating-point
+instructions, due to the lack of floating-point support in LLVM [13, 14], we add support
+for the flush-to-zero mode, not-a-number processing, floating-point exceptions, and
+various rounding modes. On average, mc2llvm-translated binary can achieve 47% and
+24.5% of the performance of natively compiled x86-64 binary on statically translated
+EEMBC benchmark and dynamically translated SPEC CINT2006 benchmarks, respectively.
+Compared to QEMU-translated binary, mc2llvm-translated binary runs 2.92x, 1.21x and
+1.41x faster on statically translated EEMBC benchmark, dynamically translated SPEC
+CINT2006, and CFP2006 benchmarks, respectively. (Note that the benchmarks contain
+both floating-point instructions and other instructions, such as load and store instructions.)},
+  booktitle = {Proceedings of the 48th International Conference on Parallel Processing: Workshops},
+  articleno = {12},
+  numpages = {7},
+  keywords = {x86-64, mc2llvm, ARM v8, AArch64, binary translation, LLVM},
+  location = {Kyoto, Japan},
+  series = {ICPP 2019}
+}
+
+@article{10.1145/364995.365000,
+  author = {McKeeman, W. M.},
+  title = {Peephole Optimization},
+  year = {1965},
+  issue_date = {July 1965},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  volume = {8},
+  number = {7},
+  issn = {0001-0782},
+  url = {https://doi.org/10.1145/364995.365000},
+  doi = {10.1145/364995.365000},
+  abstract = {Redundant instructions may be discarded during the final stage of compilation by using
+a simple optimizing technique called peephole optimization. The method is described
+and examples are given.},
+  journal = {Commun. ACM},
+  month = jul,
+  pages = {443–444},
+  numpages = {2}
+}

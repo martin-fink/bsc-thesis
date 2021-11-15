@@ -1,0 +1,8 @@
+benchmark                   size
+histogram                   8.74
+kmeans                      11.71
+linear\_regression          8.39
+matrix\_multiply            10.66
+pca                         9.81
+string\_match               10.37
+word\_count                 11.03

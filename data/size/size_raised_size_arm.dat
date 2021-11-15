@@ -1,0 +1,8 @@
+benchmark           size
+histogram           9.64062500000000000000
+kmeans              12.74218750000000000000
+linear\_regression  9.14843750000000000000
+matrix\_multiply    11.70312500000000000000
+pca                 10.95312500000000000000
+string\_match       11.28125000000000000000
+word\_count         11.76562500000000000000

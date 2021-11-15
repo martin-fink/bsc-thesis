@@ -1,0 +1,38 @@
+% !TeX root = ../main.tex
+% Add the above to each chapter to make compiling the PDF easier in some editors.
+
+\chapter{Related Work}\label{ch:related-work}
+
+\section{Direct Translation}\label{sec:direct-translation}
+
+With direct translation, a one-to-one mapping from the source to the target instructions is created.
+This is the approach used by projects such as Aries~\parencite{aries} (HP-PA to IA64), Rosetta 1 (PowerPC to x86/IA32) and Rosetta 2 (x86\_64 to ARM), IA-32EL~\parencite{ia32el} (x86/IA32 to IA64), and others~\parencite{arm-sbt}.
+These projects were developed to aid the adoption of new CPU architectures by allowing legacy binaries to run on new machines without barriers or having to wait for developers to release an updated version of their programs.
+Rosetta 2 also implements parts of the translator in hardware, significantly speeding up the translated binary.
+
+\section{IR-Based Translation}\label{sec:llvm-based-translation}
+
+A more flexible approach is achieved by translating the source into an intermediate language before it is compiled to the target architecture.
+Projects such as MCTOLL~\parencite{yadavalli_raising_2019} and LLBT~\parencite{llbt} use LLVM IR as their intermediate language, while others like the UBQT framework~\parencite{10.5555/1698151} develop their own intermediate representation.
+
+The advantage of IR-based translation is that adding support for an additional source or target architecture takes less effort than for the direct approach, as the front- and backend are decoupled.
+Widely used IR's such as LLVM IR already come with a wide range of supported target architectures as well as an optimizer that is able to significantly improve the runtime performance of the generated code.
+
+\section{Peephole-Based Translation}\label{sec:peephole-based-translation}
+
+Projects such as the tool developed by \citeauthor{10.5555/1855741.1855754} implement a static binary translation approach without having to manually implement the mapping for every instruction.
+It uses a peephole superoptimizer to find mappings from the source to the target architecture.
+This superoptimizer approach works by extracting a list of instruction sequences from a training set, creating a possible list of replacements for them, and checking which of these replacements is equivalent to the source sequence.
+If the replacement sequence is equivalent to the source sequence, it is saved as a mapping.
+From this, a lookup table with replacement sequences from the source to the target architecture is created~\parencite{10.5555/1855741.1855754}.
+
+\section{Translation of Floating-Point Instructions}\label{sec:translation-of-floating-point-instructions}
+
+Floating point instructions pose a challenge not only in hardware but also for binary translators, as different architectures may implement different behaviour regarding rounding, exceptions, and more.
+To keep performance overhead low, binary translators should aim at keeping software emulation of instructions down to a minimum.
+
+Support for floating-point instructions in LLBT~\parencite{llbt} has been implemented by \citeauthor{10.1145/3339186.3339192}.
+ARM supports different rounding modes for floating-point instructions, for both intermediate and final results.
+As LLVM does not allow setting rounding modes for either of those, this behaviour needs to be implemented with software emulation.
+In order to replicate the original behavior in the raised code, intermediate results may need to be calculated for some instructions to get to the correct result.
+To check for hardware exceptions, the operands and the result of instructions need to be checked by the generated LLVM code~\parencite{10.1145/3339186.3339192}.
